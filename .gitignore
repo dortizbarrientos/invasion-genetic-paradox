@@ -1,43 +1,5 @@
-# ---- Simulation output (can be large; regenerate from scripts) ----
-results/data/*
-!results/data/.gitkeep
-*.trees          # tree-sequence output from SLiM/pyslim
-*.vcf
-*.vcf.gz
-
-# ---- Python ----
-__pycache__/
-*.py[cod]
-.venv/
-venv/
-env/
-.ipynb_checkpoints/
-*.egg-info/
-
-# ---- R ----
-.Rproj.user/
-.Rhistory
-.RData
-.Ruserdata
-*.Rproj
-
-# ---- LaTeX (manuscripts) ----
-*.aux
-*.log
-*.out
-*.bbl
-*.blg
-*.toc
-*.synctex.gz
-*.fls
-*.fdb_latexmk
-
-# ---- OS / editor cruft ----
+~$*
 .DS_Store
-Thumbs.db
-*~
-.vscode/
-.idea/
-
-# ---- Keep empty dirs tracked ----
-!**/.gitkeep
+__pycache__/
+*.pyc
+.Rhistory
