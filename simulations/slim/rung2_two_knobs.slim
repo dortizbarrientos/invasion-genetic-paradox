@@ -1,0 +1,22 @@
+// =============================================================================
+// rung2_two_knobs.slim
+// -----------------------------------------------------------------------------
+// RUNG:        2 (finite loci + effect-size distribution)
+// RECOVERS:    Rung 0-1 analytics in the limits (large L -> infinitesimal;
+//              expectation of V_A' -> (1 - 1/2Ne) V_A).
+// PURPOSE:     Vary only two knobs -- number of loci L and the effect-size tail
+//              -- and harvest the distribution of retained V_A' across replicate
+//              founder draws. Decides whether the founder lottery switches on.
+//
+// STATUS:      stub. Parameters and life cycle to be filled in.
+//
+// Pedagogical note (for the biologist): "knob" = a parameter we deliberately
+// turn while holding all else fixed, so any change in outcome is attributable
+// to that one cause. Here: L (how polygenic) and the tail of the effect-size
+// distribution (whether a few loci carry outsized effects).
+// =============================================================================
+
+// initialize() { ... }   // L loci, QTL effect distribution, recombination
+// 1 early()    { ... }   // found source population at the optimum
+// ... { ... }            // bottleneck: sample N_e founders
+// ... { ... }            // shift optimum; record retained V_A' per replicate
