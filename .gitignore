@@ -1,5 +1,10 @@
-~$*
+# OS / editor cruft
 .DS_Store
+# Office lock files
+~$*
+# Python
 __pycache__/
 *.pyc
+# R
 .Rhistory
+.RData
