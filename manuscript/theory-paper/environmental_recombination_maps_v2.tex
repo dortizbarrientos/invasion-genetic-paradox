@@ -1,0 +1,901 @@
+\documentclass[11pt]{article}
+
+% ---------------------------------------------------------------------------
+% Environmental effects on meiotic recombination landscapes
+% Plain-language working draft
+% Compiles with pdfLaTeX. Keep model_illustration_revised.pdf in this folder.
+% ---------------------------------------------------------------------------
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{graphicx}
+\usepackage{booktabs,tabularx,array}
+\usepackage{microtype}
+\usepackage[round,authoryear]{natbib}
+\usepackage[hidelinks,hypertexnames=false]{hyperref}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{float}
+
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\textfraction}{0.08}
+\renewcommand{\floatpagefraction}{0.8}
+\setlist{nosep,leftmargin=*}
+
+\newtheorem{assumption}{Assumption}
+\newtheorem{proposition}{Proposition}
+\newtheorem{prediction}{Prediction}
+\theoremstyle{remark}
+\newtheorem*{remark}{Explanation}
+\newtheorem*{scope}{Scope}
+
+\newcommand{\dd}{\,\mathrm{d}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\avg}[1]{\langle #1 \rangle}
+\newcommand{\Rbar}{\overline{R}}
+\newcommand{\pbar}{\overline{p}}
+\newcommand{\FST}{F_{\mathrm{ST}}}
+\newcommand{\dxy}{d_{xy}}
+\newcommand{\PRDM}{\textsc{prdm9}}
+\newcommand{\SPO}{\textsc{spo11}}
+
+\title{\bfseries Environmental effects on meiotic recombination maps\\[6pt]
+{\large\normalfont A model linking meiotic chromatin to diversity and relative differentiation}}
+
+\author{
+Emily C.\ Giles\,$^{1}$, \;
+Pablo Saenz-Agudelo\,$^{1}$, \;
+Daniel Ortiz-Barrientos\,$^{2,\ast}$
+}
+\date{\today \\[6pt]
+\small
+$^{1}$Cawthron Institute, 98 Halifax Street East, Nelson 7010,
+New Zealand (postal: Private Bag 2, Nelson 7040) \\[1pt]
+$^{2}$School of the Environment and ARC Centre of Excellence for Plant Success in
+Nature and Agriculture, \\
+The University of Queensland, St Lucia QLD 4072, Australia \\[3pt]
+\small $^{\ast}$Corresponding author: \texttt{d.ortizbarrientos@uq.edu.au}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+Environmental conditions can change both the number and the genomic positions of
+meiotic crossovers. Population-genetic models usually treat the recombination map
+as fixed, and experimental studies often combine these two changes. We separate
+them. In environment $E$, we write the map as $r_E(x)=R_Ep_E(x)$, where $R_E$ is
+total map length and $p_E(x)$ is the distribution of crossover positions. A local
+placement weight $q_E(x)$ determines $p_E(x)$. Meiotic chromatin accessibility
+contributes to this weight together with sequence context, chromosome structure,
+axis organisation, and crossover maturation. For two environments, the map change
+is $\Delta r=\Delta R\,\pbar+\Rbar\,\Delta p$. The first term measures the change
+in total map length. The second measures the redistribution of crossovers along the
+chromosome and integrates to zero. A region gains relative crossover probability
+when its increase in placement weight exceeds its expected share of the genome-wide
+increase. The result also applies to regions with zero placement weight at
+baseline. We then model background selection, in which selection against deleterious alleles
+also removes linked neutral variants. In a local approximation, diversity rises
+where recombination rises. Relative
+differentiation falls in those regions when absolute divergence changes little. In
+the full model, diversity depends on recombination along the chromosome between
+neutral and selected sites, so the sign depends on changes across the surrounding
+map. These population-genetic effects accumulate over many generations. They can arise when the environment acts directly on meiosis in each generation
+or when an inherited state persists after exposure. The model specifies experiments and comparative tests that link meiotic chromatin,
+recombination-map change, and population-genomic variation.
+\end{abstract}
+
+\section{Introduction}
+
+Crossovers are unevenly distributed along chromosomes. In budding yeast and
+plants, open chromatin, nucleosome organisation, histone modifications, DNA
+methylation, chromosome-axis proteins, sequence polymorphism, and structural
+context all contribute to their positions
+\citep{pan2011,choi2013,choi2018,underwood2018,fernandes2024,son2025}.
+Experiments that alter chromatin states also alter meiotic recombination, which
+supports a causal role for chromatin
+\citep{underwood2018,fernandes2024,son2025,szymanska2026}.
+
+The recombination map also responds to the environment. Temperature can change
+total crossover number, crossover positions, or both. The response varies among
+chromosomes, sexes, genotypes, and temperature treatments
+\citep{lloyd2018,modliszewski2018,destorme2020,coulton2020}. An analysis must distinguish total map length from the spatial distribution of
+crossovers.
+
+Recombination also affects neutral genetic variation. Selection at one site can
+remove neutral variants at linked sites. Recombination weakens this association.
+Background selection and selective sweeps reduce more neutral diversity
+in regions with low recombination
+\citep{begun1992,charlesworth1993,hudson1995,nordborg1996,coop2012}. The same
+process can raise relative differentiation by reducing diversity within
+populations, even when absolute divergence remains near its background value
+\citep{charlesworth1998,cruickshank2014}. Most models treat the recombination map
+as fixed. Theory on evolving maps shows that map history can change the strength
+and spatial distribution of background selection \citep{booker2022}. Recombination
+maps can also differ between recently diverged ecotypes \citep{talbi2025}.
+
+We develop one model for these observations. We first separate total map length
+from the spatial distribution of crossovers. We then derive how an environmental
+change in local crossover placement alters that distribution. Next, we calculate
+the effects on diversity under local and nonlocal models of linked selection. We
+also derive the corresponding change in relative differentiation. Each equation
+states the conditions required for its use.
+
+The map response and its population-genetic consequences can occur without
+epigenetic inheritance. The environment may act directly on cells entering meiosis,
+or the same environment may induce a similar state in each generation. Inheritance becomes a separate hypothesis when
+an altered state persists after the inducing environment has been removed.
+
+\section{From meiotic state to the recombination map}
+\label{sec:model}
+
+\subsection{A model for crossover placement}
+
+Let $x\in[0,L]$ denote physical position along a chromosome and let $E$ denote an
+environment or treatment. Define a nonnegative, integrable crossover-placement
+weight
+\begin{equation}
+q_E(x)=f\!\left(a_E(x),\mathbf{z}_E(x)\right),
+\qquad q_E(x)\ge 0,
+\label{eq:q}
+\end{equation}
+where $a_E(x)$ is meiotic chromatin accessibility. The vector $\mathbf{z}_E(x)$
+contains other determinants of crossover placement, including chromatin marks,
+DNA methylation, sequence and structural variation, chromosome-axis organisation,
+synapsis, interference, sex, and the probability that a double-strand break
+matures into a crossover. The weight $q_E(x)$ measures local crossover propensity
+before normalisation. We leave the function $f$ unspecified. The empirical
+question is whether accessibility explains part of $q_E$ after the other
+determinants have been controlled.
+
+Let
+\begin{equation}
+Q_E=\int_0^L q_E(x)\dd x,
+\qquad
+p_E(x)=\frac{q_E(x)}{Q_E},
+\qquad
+\int_0^L p_E(x)\dd x=1.
+\label{eq:p}
+\end{equation}
+The density $p_E(x)$ gives the spatial distribution of crossover positions,
+conditional on a crossover occurring. Let $R_E$ be total map length in environment
+$E$. The realised map is
+\begin{equation}
+r_E(x)=R_Ep_E(x),
+\qquad
+\int_0^L r_E(x)\dd x=R_E.
+\label{eq:r}
+\end{equation}
+This factorisation allows total map length and spatial distribution to vary
+independently.
+
+\begin{scope}
+The model applies where meiotic chromatin explains a measurable part of crossover
+placement. A functional \PRDM{} system may be present or absent. In
+\PRDM-directed systems, $q_E$ can include motif binding and the chromatin changes
+recruited by \PRDM. In systems without functional \PRDM-directed placement,
+promoters, CpG islands, and other chromatin-associated features often explain more
+of the placement pattern \citep{baker2017,talbi2025}. The model should be tested by
+estimating the contribution of meiotic chromatin after accounting for the other
+terms in $\mathbf{z}_E$.
+\end{scope}
+
+\subsection{Total map length and spatial distribution}
+
+Compare a baseline environment $E=0$ with a second environment $E=1$. Write
+\[
+\Delta r=r_1-r_0,
+\quad
+\Delta R=R_1-R_0,
+\quad
+\Delta p=p_1-p_0,
+\]
+and define the midpoints
+\[
+\Rbar=\frac{R_1+R_0}{2},
+\qquad
+\pbar=\frac{p_1+p_0}{2}.
+\]
+
+\begin{proposition}[exact total--shape decomposition]
+\label{prop:decomp}
+For any two recombination maps of the form \eqref{eq:r},
+\begin{equation}
+\boxed{\;
+\Delta r(x)=\underbrace{\Delta R\,\pbar(x)}_{\text{total-map component}}
++\underbrace{\Rbar\,\Delta p(x)}_{\text{shape component}}.
+\;}
+\label{eq:decomp}
+\end{equation}
+The two components satisfy
+\begin{equation}
+\int_0^L \Delta R\,\pbar(x)\dd x=\Delta R,
+\qquad
+\int_0^L \Rbar\,\Delta p(x)\dd x=0.
+\label{eq:decomp_integrals}
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Expanding the right-hand side gives
+\[
+\frac{(R_1-R_0)(p_1+p_0)+(R_1+R_0)(p_1-p_0)}{2}
+=R_1p_1-R_0p_0.
+\]
+The integral statements follow from $\int p_0=\int p_1=1$.
+\end{proof}
+
+\begin{remark}
+The zero integral of the shape component follows from normalisation. It describes
+redistribution along the chromosome. Experiments must estimate $\Delta R$
+separately to determine whether total recombination has changed.
+\end{remark}
+
+We measure the amount of spatial redistribution in map units as
+\begin{equation}
+M_{\mathrm{shape}}
+=\frac{\Rbar}{2}\int_0^L |\Delta p(x)|\dd x.
+\label{eq:mshape}
+\end{equation}
+The factor $1/2$ avoids counting the same redistributed map length twice. Let $M_{\mathrm{total}}=|\Delta R|$. When either component is
+nonzero, define
+\begin{equation}
+\chi
+=\frac{M_{\mathrm{shape}}}
+{M_{\mathrm{shape}}+M_{\mathrm{total}}}.
+\label{eq:chi}
+\end{equation}
+Values near one indicate a response dominated by spatial redistribution. Values
+near zero indicate a response dominated by total map-length change. We use $\chi$
+as a descriptive summary of the observed response.
+
+\subsection{Change in local crossover placement}
+\label{sec:shape}
+
+Let $q_1=q_0+\Delta q$ and $Q_1=Q_0+\Delta Q$, where
+$\Delta Q=\int_0^L\Delta q(x)\dd x$. Write $p=p_0$ for the baseline distribution.
+
+\begin{proposition}[exact redistribution of normalised placement]
+\label{prop:placement}
+For any admissible perturbation with $Q_1>0$,
+\begin{equation}
+\boxed{\;
+\Delta p(x)
+=\frac{\Delta q(x)-p(x)\Delta Q}{Q_1}.
+\;}
+\label{eq:dp_general}
+\end{equation}
+Consequently,
+\begin{equation}
+\Delta p(x)>0
+\quad\Longleftrightarrow\quad
+\Delta q(x)>p(x)\Delta Q.
+\label{eq:dp_sign_general}
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Direct subtraction gives
+\[
+\frac{q+\Delta q}{Q+\Delta Q}-\frac{q}{Q}
+=\frac{Q\Delta q-q\Delta Q}{Q(Q+\Delta Q)}
+=\frac{\Delta q-p\Delta Q}{Q+\Delta Q}.
+\]
+The denominator is positive, so the numerator determines the sign.
+\end{proof}
+
+Equation~\eqref{eq:dp_general} remains defined when $q(x)=0$. If an inactive
+region acquires positive placement weight, then
+$\Delta p(x)=\Delta q(x)/Q_1>0$. The equation also covers the appearance of new
+crossover-active regions.
+
+Where $q(x)>0$, define the fractional change $h(x)=\Delta q(x)/q(x)$ and its
+baseline placement-weighted mean
+\begin{equation}
+\avg{h}_p=\int_0^L p(x)h(x)\dd x=\frac{\Delta Q}{Q}.
+\end{equation}
+Then Eq.~\eqref{eq:dp_general} becomes
+\begin{equation}
+\boxed{\;
+\Delta p(x)
+=p(x)\frac{h(x)-\avg{h}_p}{1+\avg{h}_p}.
+\;}
+\label{eq:dp_fractional}
+\end{equation}
+A region gains relative crossover probability when its placement weight increases
+by more than the placement-weighted genomic average. A uniform multiplicative
+change in $q$ changes $Q$ and leaves $p$ unchanged.
+
+Chromatin accessibility enters this result as one component of $q_E$. If
+accessibility changes while the other arguments of $f$ remain fixed, then a small
+perturbation at locations with $a>0$ gives
+\begin{equation}
+h(x)
+\approx
+\varepsilon_a(x)g_a(x),
+\qquad
+\varepsilon_a(x)=\frac{\partial\log f}{\partial\log a},
+\qquad
+g_a(x)=\frac{\Delta a(x)}{a(x)}.
+\label{eq:elasticity}
+\end{equation}
+If $f(a)=a$, then $h=g_a$ exactly. More general functions allow accessibility to
+change double-strand-break initiation while other processes control crossover
+maturation. Models for $q_E$ should include all available predictors of crossover placement.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.98\textwidth]{model_illustration_plain.pdf}
+\caption{An example of an environmental change in the recombination map.
+\textbf{(a)} The environment changes the local crossover-placement weight
+$q_E(x)$, which includes meiotic chromatin and other determinants.
+\textbf{(b)} Total map length and the spatial distribution can change together.
+\textbf{(c)} Equation~\eqref{eq:decomp} separates the observed difference into a
+total component, which integrates to $\Delta R$, and a shape component, which
+integrates to zero. \textbf{(d)} The local background-selection approximation
+predicts higher diversity where the local recombination rate rises. Relative
+differentiation falls in the same region when $\dxy$ changes little. The nonlocal
+response in Eq.~\eqref{eq:dlogpi_nonlocal} averages map changes over the paths
+between neutral and selected sites.}
+\label{fig:model}
+\end{figure}
+
+\section{Consequences for linked selection}
+\label{sec:diversity}
+
+\subsection{Background selection across the recombination map}
+
+Background selection reduces neutral diversity when selection removes deleterious
+alleles and the neutral variants linked to them. Recombination separates neutral
+and selected sites, so the effect declines with genetic distance. Let $u(z)$ be
+the deleterious mutation-rate density at position $z$, and let $s(z)>0$ be the
+selection coefficient. Under map $r$, the genetic distance between positions $x$
+and $z$ is
+\begin{equation}
+d_r(x,z)
+=\int_{\min(x,z)}^{\max(x,z)} r(y)\dd y.
+\label{eq:distance}
+\end{equation}
+We use the following standard approximation for the background-selection exponent:
+\begin{equation}
+E(x;r)
+=\int_0^L u(z)
+\frac{s(z)}{\left[s(z)+d_r(x,z)\right]^2}
+\dd z,
+\qquad
+\pi(x;r)=\pi_{\mathrm{neu}}(x)e^{-E(x;r)}.
+\label{eq:bgs}
+\end{equation}
+Here $\pi_{\mathrm{neu}}(x)$ is neutral diversity in the absence of linked
+selection. The contribution from a selected site decreases as its genetic
+distance from $x$ increases.
+
+For a small map perturbation $\delta r$, the change in genetic distance is
+\begin{equation}
+\delta d_r(x,z)
+=\int_{\min(x,z)}^{\max(x,z)}\delta r(y)\dd y.
+\label{eq:ddistance}
+\end{equation}
+Differentiating Eq.~\eqref{eq:bgs} gives
+\begin{equation}
+\boxed{\;
+\delta\log\pi(x)
+=2\int_0^L u(z)
+\frac{s(z)}{\left[s(z)+d_r(x,z)\right]^3}
+\left[
+\int_{\min(x,z)}^{\max(x,z)}\delta r(y)\dd y
+\right]\dd z.
+\;}
+\label{eq:dlogpi_nonlocal}
+\end{equation}
+The ordered limits in Eq.~\eqref{eq:ddistance} give the same positive genetic
+distance for selected sites on either side of $x$.
+
+Equation~\eqref{eq:dlogpi_nonlocal} can also be written as
+\begin{equation}
+\delta\log\pi(x)=\int_0^L W_x(y)\,\delta r(y)\dd y,
+\qquad W_x(y)\ge 0,
+\label{eq:kernel}
+\end{equation}
+where $W_x(y)$ weights positions on the chromosomal segments between $x$ and
+selected sites. Thus the change in diversity at $x$ is a weighted average of map
+changes across those segments. Changes away from $x$ can reinforce or offset the
+local change. A pointwise sign rule requires the local approximation below.
+
+\subsection{Local approximation}
+
+Suppose $u$, $s$, and $r$ vary slowly over the linkage scale that contributes most
+to Eq.~\eqref{eq:bgs}. Also suppose that the site of interest lies far enough from a chromosome
+boundary. Then
+\begin{equation}
+E(x;r)\approx\frac{\kappa u(x)}{r(x)},
+\qquad \kappa=2
+\label{eq:bgs_local}
+\end{equation}
+for the kernel in Eq.~\eqref{eq:bgs} on a locally uniform, effectively infinite
+chromosome. Let $E_0(x)=\kappa u(x)/r_0(x)$. For a finite local map change,
+\begin{equation}
+\boxed{\;
+\log\frac{\pi_1(x)}{\pi_0(x)}
+=E_0(x)\left[1-\frac{r_0(x)}{r_1(x)}\right].
+\;}
+\label{eq:pi_ratio_general}
+\end{equation}
+Within this approximation, $r_1(x)>r_0(x)$ gives $\pi_1(x)>\pi_0(x)$.
+
+For $q_0(x)>0$, let $h=\Delta q/q_0$ and let
+$\eta_R=\Delta R/R_0$. From Eqs.~\eqref{eq:r} and
+\eqref{eq:dp_fractional},
+\begin{equation}
+\frac{r_1(x)}{r_0(x)}
+=(1+\eta_R)
+\frac{1+h(x)}{1+\avg{h}_p}.
+\label{eq:r_ratio}
+\end{equation}
+Substitution into Eq.~\eqref{eq:pi_ratio_general} gives
+\begin{equation}
+\boxed{\;
+\log\frac{\pi_1(x)}{\pi_0(x)}
+=E_0(x)
+\left[
+1-\frac{1+\avg{h}_p}
+{(1+\eta_R)(1+h(x))}
+\right].
+\;}
+\label{eq:pi_ratio_h}
+\end{equation}
+For small changes,
+\begin{equation}
+\frac{\Delta\pi(x)}{\pi(x)}
+\approx
+E_0(x)\left[\eta_R+h(x)-\avg{h}_p\right].
+\label{eq:pi_firstorder}
+\end{equation}
+When $\eta_R=0$, the local diversity sign follows
+$h-\avg{h}_p$. When total map length changes, the total and spatial components may
+reinforce or oppose each other.
+
+Both the local and nonlocal formulations give two general results. Regions with
+strong existing linked selection show larger fractional responses to a map change.
+Genome-wide diversity can also change when $\Delta p$ integrates to zero, because
+the response is nonlinear and selected sites are unevenly distributed.
+
+\subsection{Timescale and map history}
+\label{sec:timescale}
+
+A recombination map can respond within one meiosis. Nucleotide diversity changes
+as genealogies turn over across many generations. If a map remains stable long
+enough, Eqs.~\eqref{eq:bgs}--\eqref{eq:pi_ratio_h} describe the resulting long-term
+values. If the map switches before genealogies relax, current diversity depends
+on the sequence of past maps \citep{booker2022}. Forward or coalescent simulations
+can use that sequence directly. A one-generation experiment can estimate
+$\Delta a$, $\Delta q$, $\Delta R$, and $\Delta p$. Tests of $\Delta\pi$ require
+recurrent exposure, a persistent state, or comparisons among populations with
+different long-term map histories.
+
+\section{Consequences for relative differentiation}
+\label{sec:divergence}
+
+For a Hudson-type sequence measure, write relative differentiation as
+\begin{equation}
+\FST(x)=1-\frac{\pi_w(x)}{\dxy(x)},
+\label{eq:fst_def}
+\end{equation}
+where $\pi_w$ is diversity within populations and $\dxy$ is mean pairwise
+divergence between populations. For two map regimes,
+\begin{equation}
+\boxed{\;
+1-F_{\mathrm{ST},1}(x)
+=\left[1-F_{\mathrm{ST},0}(x)\right]
+\frac{\pi_{w,1}(x)}{\pi_{w,0}(x)}
+\frac{d_{xy,0}(x)}{d_{xy,1}(x)}.
+\;}
+\label{eq:fst_finite}
+\end{equation}
+Its first-order form is
+\begin{equation}
+\Delta\FST(x)
+\approx
+\left[1-\FST(x)\right]
+\left[
+\frac{\Delta\dxy(x)}{\dxy(x)}
+-
+\frac{\Delta\pi_w(x)}{\pi_w(x)}
+\right].
+\label{eq:fst_firstorder}
+\end{equation}
+
+Consider a map change that occurs after population separation, leaves the neutral
+mutation rate nearly unchanged, and acts mainly through within-population linked
+selection. In this regime, $d_{xy,1}\approx d_{xy,0}$. The local
+background-selection approximation then gives
+\begin{equation}
+\boxed{\;
+F_{\mathrm{ST},1}(x)
+=1-\left[1-F_{\mathrm{ST},0}(x)\right]
+\exp\!\left\{
+E_0(x)\left[1-\frac{r_0(x)}{r_1(x)}\right]
+\right\}.
+\;}
+\label{eq:fst_local}
+\end{equation}
+Under these conditions,
+\begin{equation}
+\operatorname{sign}\!\left(F_{\mathrm{ST},1}-F_{\mathrm{ST},0}\right)
+=-\operatorname{sign}(r_1-r_0).
+\label{eq:fst_sign}
+\end{equation}
+When $\eta_R=0$, the sign is opposite to $h-\avg{h}_p$. This sign rule applies to
+the stated local linked-selection regime with approximately stable $\dxy$.
+
+The analysis should estimate $\dxy$. Ancestral polymorphism, mutation-rate
+variation, gene flow, introgression, ancestral linked selection, and structural
+variation can all change it. High $\FST$ together with low $\pi_w$ and $\dxy$ at or below its genomic
+background is consistent with linked selection in a low-recombination region.
+Elevated $\dxy$ can arise from restricted gene flow or divergent selection, among
+other causes. The analysis should combine direct recombination maps, $\pi_w$, linkage
+disequilibrium, $\FST$, $\dxy$, mutation-rate proxies, and demographic models.
+
+Replicate populations exposed to similar environments may develop similar $\FST$
+profiles even when selection acts on different loci. Evidence for the proposed
+mechanism requires a similar meiotic chromatin response, a similar $\Delta p$, and
+an $\FST$ response mediated mainly through $\pi_w$. Other possible causes include
+parallel selection, structural variants, and shared ancestral recombination maps.
+
+\section{Direct exposure, repeated induction, and inheritance}
+\label{sec:inheritance}
+
+Three processes can produce recurrent differences in recombination maps.
+
+\paragraph{Direct parental exposure.}
+The environment reaches cells that undergo meiosis and changes $q_E$, $R_E$, or
+both. The altered gametes record a parental environmental effect.
+
+\paragraph{Repeated environmental induction.}
+The meiotic state resets each generation, and the same environment induces a
+similar map in each generation. Population-genomic effects can accumulate without
+persistence of the chromatin state between generations.
+
+\paragraph{Inherited state.}
+The inducing environment ends, and the altered meiotic state persists in one or
+more unexposed generations. A transgenerational inheritance claim requires
+persistence in the relevant unexposed generations.
+
+A minimal model separates direct and inherited components. Let $E_t$ be an
+environmental cue experienced by generation $t$, let $a_0(x)$ be the baseline
+meiotic accessibility profile, and write
+\begin{align}
+a_t(x)&=a_0(x)+\beta(x)E_t+m_t(x),
+\label{eq:direct_memory_a}\\
+m_{t+1}(x)&=\rho(x)m_t(x)+\gamma(x)E_t+\xi_t(x),
+\qquad 0\le \rho(x)\le 1.
+\label{eq:direct_memory_m}
+\end{align}
+The coefficient $\beta$ gives the direct response within a generation. The state
+$m_t$ is the transmitted component. The coefficient $\gamma$ measures how exposure
+changes that component, and $\rho$ measures its persistence after $E_t$ returns to
+zero. Repeated induction can operate with $m_t=0$. Evidence for inheritance
+requires $m_t\ne0$ in the relevant unexposed descendants. The number of unexposed
+generations depends on the organism's germline and life cycle.
+
+We use the following terms. Repeated environmental induction is an
+environmental input to the recombination map. Persistent $m_t$ is an inherited
+epigenetic input. We reserve the term feedback for systems in which the resulting
+genetic variation later changes the chromatin response or the interaction with the
+environment.
+
+\section{Tests of the model}
+\label{sec:predictions}
+
+The model contains a sequence of testable links. Evidence for population-genomic
+effects depends on support for the earlier meiotic and recombination links.
+
+
+
+\subsection{Estimate crossover number and position separately}
+
+The primary experiment should retain crossover data from individual meioses. Fit
+total crossover number or total map length by bivalent, meiocyte, sex, genotype,
+and treatment. This estimates $R_E$ and the extent of crossover homeostasis. Then
+condition on the observed number of crossovers and model their positions along the
+chromosome. This estimates $p_E$ and tests the placement model. A point-process
+model can include crossover interference. A multinomial or Dirichlet-multinomial
+model may be adequate for coarse genomic bins. Binwise correlations can mislead
+because $p_E$ is compositional: an increase in one region produces relative
+decreases elsewhere. Conditional likelihoods or log-ratio methods account for
+this constraint.
+
+Collect the chromatin data at the meiotic stage that produces the mapped gametes.
+Use somatic accessibility after establishing its relation to the meiotic state. Analyse male and female maps separately when possible. Viability
+selection in gametes or zygotes can distort offspring-based crossover maps. Direct
+gamete assays and reciprocal designs can test for this bias.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.08\textwidth}
+>{\raggedright\arraybackslash}p{0.22\textwidth}
+>{\raggedright\arraybackslash}X
+>{\raggedright\arraybackslash}p{0.24\textwidth}}
+\toprule
+Link & Quantity & Required design and expected result & Evidence against the proposed link \\
+\midrule
+P0 & Baseline coupling & In meiocytes, estimate whether accessibility and other chromatin variables explain crossover placement after controlling for sequence, structure, gene density, chromosome position, sex, and genotype. & Accessibility adds no predictive information to crossover placement in the study system. \\
+\addlinespace
+P1 & Environmental mechanism & Measure meiotic chromatin and crossover locations in matched control and treatment samples. Estimate $\Delta q$ from the molecular predictors and test whether it predicts $\Delta p$ through Eq.~\eqref{eq:dp_general}. & The observed $\Delta p$ is repeatedly unrelated to the measured placement-state change after relevant covariates and meiotic timing are controlled. \\
+\addlinespace
+P2 & Total and spatial change & Estimate $R_E$ and $p_E$ separately, then report $\Delta R$, $M_{\mathrm{shape}}$, and $\chi$. & A large $\Delta R$ with little $\Delta p$ supports a change in total map length and gives little evidence for spatial redistribution. \\
+\addlinespace
+P3 & Long-run diversity & In replicated populations with recurrent exposure or a persistent map shift, test whether measured maps predict $\pi$ and LD under forward or coalescent models that include demography and linked selection. & A fixed-map model fits as well as the measured map history, or the observed response differs from the prediction based on that history. \\
+\addlinespace
+P4 & Relative differentiation & Jointly model $\pi_w$, LD, $\FST$, and $\dxy$. In the stated linked-selection regime, changes in $\FST$ should arise mainly through changes in $\pi_w$. & Mutation-rate variation, structural variants, gene-flow barriers, or selection at the loci under study explain the data better, and direct map data give no support for the proposed mechanism. \\
+\addlinespace
+P5 & Inheritance & Remove the cue and assay meiotic chromatin and recombination in the required unexposed descendants. Estimate persistence in Eqs.~\eqref{eq:direct_memory_a}--\eqref{eq:direct_memory_m}. & The state returns to baseline in all unexposed descendants. The result is consistent with direct or repeated induction and excludes persistent memory. \\
+\bottomrule
+\end{tabularx}
+\caption{Tests of the proposed mechanism. The zero integral of $\Delta p$ follows
+from normalisation. Empirical tests concern changes in map shape, the contribution
+of meiotic chromatin to those changes, and the duration of the altered map.}
+\label{tab:predictions}
+\end{table}
+
+\subsection{Predict population-genomic effects}
+
+After estimating $\Delta R$ and $\Delta p$, use the measured map in forward or
+coalescent simulations. The model can include deleterious mutations, selective
+sweeps, demography, structural variants, and the frequency of environmental
+exposure. Simulations are needed because Eqs.~\eqref{eq:pi_ratio_h} and
+\eqref{eq:fst_local} describe long-term local values. They should predict the spatial and
+temporal responses of $\pi$, LD, $\FST$, and $\dxy$ before comparisons with natural
+populations.
+
+Comparative tests require ecological replication. Suitable designs include
+independent population pairs, replicate colonisations, and populations distributed
+along an environmental gradient. The analysis should include mutation rate, gene
+density, mappability, GC-biased gene conversion, centromeres, structural variants,
+sex-specific maps, and demographic history. LD-based recombination maps depend on
+demography and selection. Pedigree, gamete, and experimental maps provide more
+direct tests of the meiotic mechanism.
+
+
+
+\section{Biological settings and extensions}
+\label{sec:regimes}
+
+\paragraph{Climate and repeated stress.}
+A sustained or recurring environment may induce a similar meiotic map in many
+generations. The immediate prediction is a reproducible change in $R_E$, $p_E$, or
+both. Population-genomic effects require enough generations for the map history to
+alter genealogies. Comparisons along thermal gradients should follow an experimental test of the
+treatment-to-map relation.
+
+\paragraph{Colonisation and range expansion.}
+A bottleneck reduces standing variation. A recombination-map shift changes the
+associations among the remaining alleles and the interference among selected loci.
+It may reduce Hill--Robertson interference in some regions or break favourable and
+locally adapted haplotypes in others. Its effect on adaptation depends on the
+positions of the recombination changes relative to selected loci and haplotypes.
+
+\paragraph{Parallel ecological transitions.}
+Replicate populations in similar environments may show similar meiotic-state and
+map responses. These responses may contribute to concordant patterns of diversity
+or relative differentiation. Shared ancestral maps, structural variants, genetic
+recombination modifiers, and parallel selection can produce similar patterns.
+Support for the environmental-chromatin mechanism requires direct and repeated
+observation of the meiotic-state and map changes.
+
+\paragraph{Divergence with gene flow.}
+Recombination affects linked selection and the persistence of multilocus
+associations under migration. An environmental map shift can change the genomic background used to infer
+barriers to gene flow. Peaks of $\FST$ have
+several possible causes. A map shift can also weaken or strengthen adaptive
+linkage, depending on its position. Joint models of migration, selection,
+structural variation, and map history are required.
+
+\section{Relation to existing theory and contribution}
+\label{sec:novelty}
+
+Separate parts of the model are established. Meiotic chromatin contributes to
+recombination placement. Temperature can alter crossover number and distribution.
+Linked selection relates diversity to recombination. Low within-population
+diversity can raise relative differentiation. Changes in recombination maps can
+alter background-selection signatures
+\citep{underwood2018,lloyd2018,modliszewski2018,cruickshank2014,booker2022}.
+
+Our contribution combines these results and makes four distinctions. First,
+Eq.~\eqref{eq:decomp} separates total map-length change from spatial change while
+allowing total recombination to vary. Second, Eq.~\eqref{eq:dp_general} gives an
+exact sign rule for normalised placement, including regions with zero baseline
+weight. Third, Eqs.~\eqref{eq:dlogpi_nonlocal} and \eqref{eq:pi_ratio_h} separate
+the full nonlocal response from its local approximation. Fourth,
+Eqs.~\eqref{eq:direct_memory_a}--\eqref{eq:direct_memory_m} distinguish direct
+exposure, repeated induction, and inheritance. These distinctions define an
+experimental sequence in which each link can be tested separately.
+
+Booker et al.\ \citep{booker2022} model background selection under changing
+recombination rates. The present model adds an environmentally responsive meiotic
+input, the total--shape decomposition, and linked mechanistic and comparative
+tests. It predicts changes in population-genomic variation when an environmental
+cue alters recombination and the altered map recurs or persists over enough
+generations.
+
+\section{Assumptions and limits}
+\label{sec:limits}
+
+\paragraph{Chromatin accessibility.}
+Accessibility may facilitate double-strand-break initiation. Crossover outcome
+also depends on axis organisation, synapsis, sequence divergence, structural
+heterozygosity, interference, and repair-pathway choice. The variable $q_E$ includes these contributions. Experiments can estimate it from
+crossover data and the available molecular predictors.
+
+\paragraph{Double-strand breaks and crossovers.}
+A perturbation can increase break formation while leaving crossover number
+unchanged. It can also redirect repair into noncrossovers or change crossover
+maturation. Crossover maps provide the primary response variable. Break maps help
+identify the stage at which the perturbation acts.
+
+\paragraph{Crossover homeostasis.}
+The obligate crossover and interference constrain crossover number. Temperature
+experiments also show changes in $R_E$. Normalisation makes the shape component in
+Eq.~\eqref{eq:decomp} integrate to zero. The total observed map can still change.
+
+\paragraph{Local and nonlocal diversity responses.}
+Equation~\eqref{eq:pi_ratio_h} gives a pointwise sign under the local
+background-selection approximation. Equation~\eqref{eq:dlogpi_nonlocal} gives the full response. The distribution of
+selected sites, chromosome boundaries, structural variants, and changes in
+flanking regions can alter diversity at the site of interest.
+
+\paragraph{Absolute divergence.}
+The approximation $\Delta\dxy\approx0$ defines one regime. The analysis should
+test it. Ancestral selection, mutation-rate variation, introgression, and
+long-running map differences can change $\dxy$.
+
+\paragraph{Recombination and adaptation.}
+Higher recombination can separate favourable alleles from deleterious backgrounds
+and reduce interference. It can also break coadapted or locally adapted haplotypes.
+The model predicts a change in linkage structure. Genetic architecture and the
+positions of selected loci determine the effect on adaptation.
+
+\paragraph{Evidence for inheritance.}
+Classify offspring effects according to which generations and germline precursors
+received direct exposure. A test of transgenerational inheritance requires the
+appropriate unexposed generations. The map-plasticity model still applies when the
+chromatin state resets in every generation.
+
+\section{Conclusion}
+
+Studies of environmental effects on recombination should estimate total map length
+and the spatial distribution of crossovers separately. The factorisation
+$r_E=R_Ep_E$ and the decomposition
+$\Delta r=\Delta R\pbar+\Rbar\Delta p$ provide this separation. A measured change
+in crossover-placement weight gives an exact rule for the change in $p_E$.
+Linked-selection theory then gives conditional predictions for diversity and
+relative differentiation.
+
+Tests should follow the same sequence as the model: measure meiotic state, estimate
+crossover number and positions, establish the frequency or persistence of the map
+change, and compare the resulting population-genomic patterns with simulations.
+The formulation states the conditions under which an environmental effect on
+meiotic chromatin can leave a population-genomic signal.
+
+\bibliographystyle{plainnat}
+\begin{thebibliography}{99}
+\small
+
+\bibitem[Baker et al.(2017)]{baker2017}
+Baker Z, Schumer M, Haba Y, Bashkirova L, Holland C, Rosenthal GG, Przeworski M.
+2017. Repeated losses of \PRDM-directed recombination despite the conservation of
+\PRDM{} across vertebrates. \emph{eLife} 6:e24133.
+
+\bibitem[Begun and Aquadro(1992)]{begun1992}
+Begun DJ, Aquadro CF. 1992. Levels of naturally occurring DNA polymorphism
+correlate with recombination rates in \emph{Drosophila melanogaster}.
+\emph{Nature} 356:519--520.
+
+\bibitem[Booker et al.(2022)]{booker2022}
+Booker TR, Payseur BA, Tigano A. 2022. Background selection under evolving
+recombination rates. \emph{Proceedings of the Royal Society B} 289:20220782.
+
+\bibitem[Charlesworth et al.(1993)]{charlesworth1993}
+Charlesworth B, Morgan MT, Charlesworth D. 1993. The effect of deleterious
+mutations on neutral molecular variation. \emph{Genetics} 134:1289--1303.
+
+\bibitem[Charlesworth(1998)]{charlesworth1998}
+Charlesworth B. 1998. Measures of divergence between populations and the effect of
+forces that reduce variability. \emph{Molecular Biology and Evolution} 15:538--543.
+
+\bibitem[Choi et al.(2013)]{choi2013}
+Choi K, Zhao X, Kelly KA, et al. 2013. Arabidopsis meiotic crossover hot spots
+overlap with H2A.Z nucleosomes at gene promoters. \emph{Nature Genetics}
+45:1327--1336.
+
+\bibitem[Choi et al.(2018)]{choi2018}
+Choi K, Zhao X, Tock AJ, et al. 2018. Nucleosomes and DNA methylation shape
+meiotic DSB frequency in Arabidopsis transposons and gene regulatory regions.
+\emph{Genome Research} 28:532--546.
+
+\bibitem[Coop and Ralph(2012)]{coop2012}
+Coop G, Ralph P. 2012. Patterns of neutral diversity under general models of
+selective sweeps. \emph{Genetics} 192:205--224.
+
+\bibitem[Coulton et al.(2020)]{coulton2020}
+Coulton A, Burridge AJ, Edwards KJ. 2020. Examining the effects of temperature on
+recombination in wheat. \emph{Frontiers in Plant Science} 11:230.
+
+\bibitem[Cruickshank and Hahn(2014)]{cruickshank2014}
+Cruickshank TE, Hahn MW. 2014. Reanalysis suggests that genomic islands of
+speciation are due to reduced diversity, not reduced gene flow.
+\emph{Molecular Ecology} 23:3133--3157.
+
+\bibitem[De Storme and Geelen(2020)]{destorme2020}
+De Storme N, Geelen D. 2020. High temperatures alter cross-over distribution and
+induce male meiotic restitution in \emph{Arabidopsis thaliana}.
+\emph{Communications Biology} 3:187.
+
+\bibitem[Fernandes et al.(2024)]{fernandes2024}
+Fernandes JB, Naish M, Lian Q, et al. 2024. Structural variation and DNA
+methylation shape the centromere-proximal meiotic crossover landscape in
+Arabidopsis. \emph{Genome Biology} 25:30.
+
+\bibitem[Hill and Robertson(1966)]{hillrobertson1966}
+Hill WG, Robertson A. 1966. The effect of linkage on limits to artificial
+selection. \emph{Genetical Research} 8:269--294.
+
+\bibitem[Hudson et al.(1992)]{hudson1992}
+Hudson RR, Slatkin M, Maddison WP. 1992. Estimation of levels of gene flow from DNA
+sequence data. \emph{Genetics} 132:583--589.
+
+\bibitem[Hudson and Kaplan(1995)]{hudson1995}
+Hudson RR, Kaplan NL. 1995. Deleterious background selection with recombination.
+\emph{Genetics} 141:1605--1617.
+
+\bibitem[Lloyd et al.(2018)]{lloyd2018}
+Lloyd A, Morgan C, Franklin FCH, Bomblies K. 2018. Plasticity of meiotic
+recombination rates in response to temperature in Arabidopsis.
+\emph{Genetics} 208:1409--1420.
+
+\bibitem[Martini et al.(2006)]{martini2006}
+Martini E, Diaz RL, Hunter N, Keeney S. 2006. Crossover homeostasis in yeast
+meiosis. \emph{Cell} 126:285--295.
+
+\bibitem[Maynard Smith and Haigh(1974)]{maynard1974}
+Maynard Smith J, Haigh J. 1974. The hitch-hiking effect of a favourable gene.
+\emph{Genetical Research} 23:23--35.
+
+\bibitem[Modliszewski et al.(2018)]{modliszewski2018}
+Modliszewski JL, Wang H, Albright AR, et al. 2018. Elevated temperature increases
+meiotic crossover frequency via the interfering (Type I) pathway in
+\emph{Arabidopsis thaliana}. \emph{PLoS Genetics} 14:e1007384.
+
+\bibitem[Nordborg et al.(1996)]{nordborg1996}
+Nordborg M, Charlesworth B, Charlesworth D. 1996. The effect of recombination on
+background selection. \emph{Genetical Research} 67:159--174.
+
+\bibitem[Pan et al.(2011)]{pan2011}
+Pan J, Sasaki M, Kniewel R, et al. 2011. A hierarchical combination of factors
+shapes the genome-wide topography of yeast meiotic recombination initiation.
+\emph{Cell} 144:719--731.
+
+\bibitem[Son et al.(2025)]{son2025}
+Son N, Kim H, Kim J, et al. 2025. The histone variant H2A.W restricts
+heterochromatic crossovers in Arabidopsis. \emph{Proceedings of the National
+Academy of Sciences USA} 122:e2413698122.
+
+\bibitem[Szymanska-Lejman et al.(2026)]{szymanska2026}
+Szymanska-Lejman M, Dziegielewski W, Wilhelm A, et al. 2026. Modifying meiotic
+recombination by targeting chromatin regulators to crossover hotspots in
+Arabidopsis. \emph{Science Advances} 12:eaeb2890.
+
+\bibitem[Talbi et al.(2025)]{talbi2025}
+Talbi M, Turner GF, Malinsky M. 2025. Rapid evolution of recombination landscapes
+during the divergence of cichlid ecotypes in Lake Masoko. \emph{Evolution}
+79:364--379.
+
+\bibitem[Underwood et al.(2018)]{underwood2018}
+Underwood CJ, Choi K, Lambing C, et al. 2018. Epigenetic activation of meiotic
+recombination near \emph{Arabidopsis thaliana} centromeres via loss of H3K9me2 and
+non-CG DNA methylation. \emph{Genome Research} 28:519--531.
+
+\end{thebibliography}
+
+\end{document}
